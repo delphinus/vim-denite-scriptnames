@@ -1,0 +1,40 @@
+---
+language: python
+
+python:
+  - 3.7
+
+install:
+  - pip install mypy vim-vint
+  - git clone https://github.com/Shougo/denite.nvim /tmp/denite.nvim
+
+script:
+  - vint autoload
+  - SRC=$(find . -name '*.py' | perl -pe 's,^\./,,')
+  - |-
+    RESULT=$(
+      for i in $SRC; do
+        export MYPYPATH=/tmp/denite.nvim/rplugin/python3:rplugin/python3
+        mypy --strict $i | grep "^$i" | tee /dev/tty
+      done
+    )
+  - |-
+    if [[ -n $RESULT ]]; then
+      exit 1
+    fi
+
+notifications:
+  slack:
+    rooms:
+      secure: "a+A42kR27Azd+uDSu2mTFGHekC5RJH6O3CT1pILNI46tXqPRHTrDV0CZtl1NqhqO\
+               GnoH0Ixm4R2osdleytBjDymOanqX78mlmAAT6n2ErbUTQbF4yKUumbL+lffcSREM\
+               EILnfCU8DKQQacH5is1/ugMAlFPmR/7SL3rEVEFoqtftlI/AG5fHGO7t3rM7vvlj\
+               VcMCqa/ghxynwDsM1SbAtL39y/ZeT9hYBRdoEsYCIUaXlDALNA5xwV1sAxCB+BXc\
+               O2e8cXWYXbfhAjefrx62xU4nn4PNp77tb3zIUJbgh68a4q3Gzh3tEDISL4mhL4sc\
+               Nr9tvvtj2ubU5iOWkXB+HPJtKvZqXhS9+P+9TlDS/L2+RgZ2xROvi49Oa+qDxoqP\
+               XOvNHRgMgyAAssmwZ4mqQIvGZAq4Z+ubxZjsnFTgpdXP2GUVMocdCGkGq/zMICf/\
+               sN/JT4ak/0XBaT2RmKGkfj99Q6/kNGUwCnyyHsVQEvj3qVEmXz4GfdRhzypdSKAD\
+               +hWS4MlY882ArXnUvY6O2aW3tYs82/LBvxtcx2B4fCyzgU54DQStGyoyptKS26Y9\
+               BztHYrK/Qgl4Vv/c8wZnpga/CDtFNnoVEiQ5nF9iWaMg9QGg0T5OcvPY7oI/eUdA\
+               oibnYOAwm0iIV2UIYbi6lvxCDEiOWngBIKZas2l8wig="
+    on_success: never
